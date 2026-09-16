@@ -16,11 +16,14 @@ steps:
     with:
       token: ${{ secrets.TARGET_REPOSITORY_TOKEN }}
       target-repository: target-owner/target-repository
+      exclude-path: .github
 ```
 
 The token needs write access to the target repository. It also needs permission to update workflows when the synchronized tree contains files under `.github/workflows`.
 
-Disable GitHub Actions in the target repository if synchronized workflows must not run there. Pin this action to a full commit SHA because it receives a write-capable token.
+`exclude-path` accepts one repository-relative file or directory. Excluding `.github` prevents source workflows and other GitHub configuration from being copied; excluding `.github/workflows` omits only workflows. Existing target content under the excluded path is removed by the next sync.
+
+Pin this action to a full commit SHA because it receives a write-capable token.
 
 ## Test
 

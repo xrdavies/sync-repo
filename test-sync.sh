@@ -12,22 +12,26 @@ git config user.name "Original Author"
 git config user.email "original@example.com"
 
 printf 'first\n' > content.txt
+mkdir -p .github/workflows
+printf 'name: copied initially\n' > .github/workflows/test.yml
 git add content.txt
+git add .github/workflows/test.yml
 git commit -m "feat: first message" >/dev/null
-"$project_dir/sync.sh" "$test_dir/target.git" HEAD repository-sync repository-sync@example.com >/dev/null
+"$project_dir/sync.sh" "$test_dir/target.git" HEAD repository-sync repository-sync@example.com "" >/dev/null
 
 test "$(git --git-dir="$test_dir/target.git" log -1 --format=%an refs/heads/main)" = repository-sync
 test "$(git --git-dir="$test_dir/target.git" log -1 --format=%ae refs/heads/main)" = repository-sync@example.com
 test "$(git --git-dir="$test_dir/target.git" log -1 --format=%B refs/heads/main)" = "feat: first message"
 test "$(git rev-parse 'HEAD^{tree}')" = "$(git --git-dir="$test_dir/target.git" rev-parse 'refs/heads/main^{tree}')"
+test -n "$(git --git-dir="$test_dir/target.git" ls-tree refs/heads/main .github)"
 
 printf 'second\n' > content.txt
 git commit -am "fix: second message" -m "Preserve this body." >/dev/null
-"$project_dir/sync.sh" "$test_dir/target.git" HEAD repository-sync repository-sync@example.com >/dev/null
-"$project_dir/sync.sh" "$test_dir/target.git" HEAD repository-sync repository-sync@example.com >/dev/null
+"$project_dir/sync.sh" "$test_dir/target.git" HEAD repository-sync repository-sync@example.com .github >/dev/null
+"$project_dir/sync.sh" "$test_dir/target.git" HEAD repository-sync repository-sync@example.com .github >/dev/null
 
 test "$(git --git-dir="$test_dir/target.git" rev-list --count refs/heads/main)" = 2
 test "$(git --git-dir="$test_dir/target.git" log -1 --format=%B refs/heads/main)" = $'fix: second message\n\nPreserve this body.'
-test "$(git rev-parse 'HEAD^{tree}')" = "$(git --git-dir="$test_dir/target.git" rev-parse 'refs/heads/main^{tree}')"
+test -z "$(git --git-dir="$test_dir/target.git" ls-tree refs/heads/main .github)"
 
 echo "sync test passed"

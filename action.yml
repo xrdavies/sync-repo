@@ -8,6 +8,10 @@ inputs:
   target-repository:
     description: Target repository in owner/name format
     required: true
+  exclude-path:
+    description: Optional repository-relative path to omit from the target tree
+    required: false
+    default: ""
   author-name:
     description: Author and committer name for the target commit
     required: false
@@ -25,6 +29,7 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.token }}
         TARGET_REPOSITORY: ${{ inputs.target-repository }}
+        EXCLUDE_PATH: ${{ inputs.exclude-path }}
         AUTHOR_NAME: ${{ inputs.author-name }}
         AUTHOR_EMAIL: ${{ inputs.author-email }}
       run: |
@@ -45,4 +50,5 @@ runs:
           "https://github.com/${TARGET_REPOSITORY}.git" \
           "${GITHUB_SHA:-HEAD}" \
           "$AUTHOR_NAME" \
-          "$AUTHOR_EMAIL"
+          "$AUTHOR_EMAIL" \
+          "$EXCLUDE_PATH"
