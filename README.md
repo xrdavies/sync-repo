@@ -12,18 +12,30 @@ steps:
     with:
       persist-credentials: false
 
-  - uses: xrdavies/sync-repo@FULL_COMMIT_SHA
+  - uses: xrdavies/sync-repo@v1.0.0
     with:
       token: ${{ secrets.TARGET_REPOSITORY_TOKEN }}
       target-repository: target-owner/target-repository
       exclude-path: .github
 ```
 
-The token needs write access to the target repository. It also needs permission to update workflows when the synchronized tree contains files under `.github/workflows`.
+## Inputs
+
+| Input | Required | Default | Description |
+| --- | --- | --- | --- |
+| `token` | Yes | | Token with write access to the target repository |
+| `target-repository` | Yes | | Target repository in `owner/name` format |
+| `exclude-path` | No | | One repository-relative file or directory to omit |
+| `author-name` | No | `repository-sync` | Author and committer name for target commits |
+| `author-email` | No | `repository-sync@users.noreply.github.com` | Author and committer email for target commits |
+
+The target repository must already exist. The action writes anonymous snapshot commits to its `main` branch and does not preserve source authors, timestamps, signatures, or ancestry. Repeated runs with the same target tree do not create duplicate commits.
+
+The token needs Contents write access to the target repository. It also needs permission to update workflows when the synchronized tree contains files under `.github/workflows`.
 
 `exclude-path` accepts one repository-relative file or directory. Excluding `.github` prevents source workflows and other GitHub configuration from being copied; excluding `.github/workflows` omits only workflows. Existing target content under the excluded path is removed by the next sync.
 
-Pin this action to a full commit SHA because it receives a write-capable token.
+Use an exact release such as `v1.0.0`; do not reference `main`.
 
 ## Test
 
