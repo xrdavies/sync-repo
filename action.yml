@@ -1,0 +1,48 @@
+name: Anonymous Repository Sync
+description: Sync the checked-out commit to another GitHub repository with an anonymous commit identity
+
+inputs:
+  token:
+    description: Token with write access to the target repository
+    required: true
+  target-repository:
+    description: Target repository in owner/name format
+    required: true
+  author-name:
+    description: Author and committer name for the target commit
+    required: false
+    default: repository-sync
+  author-email:
+    description: Author and committer email for the target commit
+    required: false
+    default: repository-sync@users.noreply.github.com
+
+runs:
+  using: composite
+  steps:
+    - name: Sync repository
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        TARGET_REPOSITORY: ${{ inputs.target-repository }}
+        AUTHOR_NAME: ${{ inputs.author-name }}
+        AUTHOR_EMAIL: ${{ inputs.author-email }}
+      run: |
+        set -euo pipefail
+
+        [[ -n "$GH_TOKEN" ]] || { echo "::error::token is required"; exit 1; }
+        [[ "$TARGET_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || {
+          echo "::error::target-repository must use owner/name format"
+          exit 1
+        }
+        [[ "$TARGET_REPOSITORY" != "${GITHUB_REPOSITORY:-}" ]] || {
+          echo "::error::source and target repositories must differ"
+          exit 1
+        }
+
+        gh auth setup-git --hostname github.com
+        "$GITHUB_ACTION_PATH/sync.sh" \
+          "https://github.com/${TARGET_REPOSITORY}.git" \
+          "${GITHUB_SHA:-HEAD}" \
+          "$AUTHOR_NAME" \
+          "$AUTHOR_EMAIL"
