@@ -12,7 +12,7 @@ steps:
     with:
       persist-credentials: false
 
-  - uses: xrdavies/sync-repo@v1.0.0
+  - uses: xrdavies/sync-repo@v1.1.0
     with:
       token: ${{ secrets.TARGET_REPOSITORY_TOKEN }}
       target-repository: target-owner/target-repository
@@ -35,7 +35,7 @@ The token needs Contents write access to the target repository. It also needs pe
 
 `exclude-path` accepts one repository-relative file or directory. Excluding `.github` prevents source workflows and other GitHub configuration from being copied; excluding `.github/workflows` omits only workflows. Existing target content under the excluded path is removed by the next sync.
 
-Use an exact release such as `v1.0.0`; do not reference `main`.
+Use an exact release such as `v1.1.0`; do not reference `main`.
 
 ## Test
 

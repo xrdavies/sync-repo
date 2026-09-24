@@ -1,5 +1,10 @@
 name: Anonymous Repository Sync
+author: xrdavies
 description: Sync the checked-out commit to another GitHub repository with an anonymous commit identity
+
+branding:
+  icon: refresh-cw
+  color: blue
 
 inputs:
   token:
